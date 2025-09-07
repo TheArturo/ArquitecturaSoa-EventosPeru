@@ -2,7 +2,7 @@
 
 # Laravel Eventos Perú
 
-# Sistema de Gestión de Biblioteca en Laravel
+# Sistema de Gestión de eventos
 
 ## Inicio Rápido
 
