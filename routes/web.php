@@ -11,7 +11,7 @@ use App\Src\Reserva\Controllers\ReservaController;
 use App\Src\Calificacion\Controllers\CalificacionController;
 use App\Src\Agenda\Controllers\AgendaController;
 
-Route::get('/', fn() => redirect()->route('eventos.index'));
+Route::view('/', 'welcome')->name('welcome');
 
 Route::resource('eventos', EventoController::class);
 Route::get('eventos/pendientes', [EventoController::class, 'pendientes'])->name('eventos.pendientes');
