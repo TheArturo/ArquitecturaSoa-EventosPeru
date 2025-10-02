@@ -25,7 +25,9 @@ Route::resource('calificaciones', CalificacionController::class)->only(['index',
 Route::get('agenda', [AgendaController::class, 'index'])->name('agenda.index');
 Route::view('configuracion', 'modulos.configuracion.index')->name('configuracion.index');
 
-Route::view('dashboard', 'dashboard')
+use App\Http\Controllers\DashboardController;
+
+Route::get('dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
