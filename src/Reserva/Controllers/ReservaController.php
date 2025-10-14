@@ -16,41 +16,7 @@ namespace App\Src\Reserva\Controllers;
         $this->repo = $repo;
     }
 
-    public function index()
-    {
-    $reservas = \App\Src\Reserva\Models\Reserva::orderBy('created_at', 'desc')->paginate(10);
-    return view('modulos.reservas.index', compact('reservas'));
-    }
-
-    public function create()
-    {
-        $eventos = app(\App\Src\Evento\Repository\EloquentEvento::class)->paginate(100);
-        $proveedores = app(\App\Src\Proveedor\Repository\EloquentProveedor::class)->paginate(100);
-        return view('modulos.reservas.create', compact('eventos', 'proveedores'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'evento_id' => ['required', 'numeric'],
-            'proveedor_id' => ['required', 'numeric'],
-            'fecha_reserva' => ['required', 'date'],
-            'estado' => 'required',
-        ], [
-            'required' => 'Este campo es obligatorio.',
-            'evento_id.numeric' => 'El evento debe ser válido.',
-            'proveedor_id.numeric' => 'El proveedor debe ser válido.',
-            'fecha_reserva.date' => 'La fecha debe ser válida.'
-        ]);
-        $reserva = $this->repo->create($request->all());
-        return redirect()->route('reservas.index')->with('success', 'Reserva creada');
-    }
-
-    public function show($id)
-    {
-        $reserva = $this->repo->find($id);
-        return view('modulos.reservas.show', compact('reserva'));
-    }
+   
 
     public function destroy($id)
     {
