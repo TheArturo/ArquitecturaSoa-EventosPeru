@@ -16,7 +16,45 @@ class EventoController extends Controller
         $this->repo = $repo;
     }
 
-    
+    public function index(Request $request)
+    {
+        $estado = $request->get('estado');
+        $query = \App\Src\Evento\Models\Evento::query();
+        if ($estado) {
+            $query->where('estado', $estado);
+        }
+        $query->orderBy('created_at', 'desc');
+        $eventos = $query->paginate(10);
+        return view('modulos.eventos.index', compact('eventos'));
+    }
+
+    public function create()
+    {
+        $clientes = app(\App\Src\Cliente\Repository\EloquentCliente::class)->paginate(100);
+        $servicios = app(\App\Src\Servicio\Repository\EloquentServicio::class)->paginate(100);
+        return view('modulos.eventos.create', compact('clientes', 'servicios'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'titulo' => 'required',
+            'cliente_id' => 'required',
+            'servicio_id' => 'required',
+            'fecha_evento' => 'required',
+            'estado' => 'required',
+        ], [
+            'required' => 'Este campo es obligatorio.'
+        ]);
+        $evento = $this->repo->create($request->all());
+        return redirect()->route('eventos.index')->with('success', 'Evento creado');
+    }
+
+    public function show($id)
+    {
+        $evento = $this->repo->find((int)$id);
+        return view('modulos.eventos.show', compact('evento'));
+    }
 
     public function edit($id)
     {
