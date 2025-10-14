@@ -16,41 +16,7 @@ class ClienteController extends Controller
         $this->repo = $repo;
     }
 
-    public function index()
-    {
-    $clientes = \App\Src\Cliente\Models\Cliente::orderBy('created_at', 'desc')->paginate(10);
-    return view('modulos.clientes.index', compact('clientes'));
-    }
-
-    public function create()
-    {
-        return view('modulos.clientes.create');
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nombre' => ['required', 'regex:/^[\pL\s]+$/u'],
-            'documento' => ['required', 'regex:/^[0-9]+$/'],
-            'telefono' => ['required', 'regex:/^[0-9]+$/'],
-            'email' => 'required|email',
-            'direccion' => 'required',
-        ], [
-            'required' => 'Este campo es obligatorio.',
-            'nombre.regex' => 'El nombre solo debe contener letras y espacios.',
-            'documento.regex' => 'El documento solo debe contener números.',
-            'telefono.regex' => 'El teléfono solo debe contener números.',
-            'email.email' => 'El email debe ser válido.'
-        ]);
-        $cliente = $this->repo->create($request->all());
-        return redirect()->route('clientes.index')->with('success', 'Cliente creado');
-    }
-
-    public function show($id)
-    {
-        $cliente = $this->repo->find($id);
-        return view('modulos.clientes.show', compact('cliente'));
-    }
+    
 
     public function edit($id)
     {
