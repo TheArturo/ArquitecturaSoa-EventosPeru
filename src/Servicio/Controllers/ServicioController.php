@@ -16,7 +16,40 @@ class ServicioController extends Controller
         $this->repo = $repo;
     }
 
-    
+    public function index()
+    {
+    $servicios = \App\Src\Servicio\Models\Servicio::orderBy('created_at', 'desc')->paginate(10);
+    return view('modulos.servicios.index', compact('servicios'));
+    }
+
+    public function create()
+    {
+        return view('modulos.servicios.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nombre' => ['required', 'regex:/^[\pL\s]+$/u'],
+            'descripcion' => 'required',
+            'precio_base' => ['required', 'numeric'],
+            'duracion_estimada_min' => ['required', 'integer'],
+            'estado' => 'required',
+        ], [
+            'required' => 'Este campo es obligatorio.',
+            'nombre.regex' => 'El nombre solo debe contener letras y espacios.',
+            'precio_base.numeric' => 'El precio base debe ser un número.',
+            'duracion_estimada_min.integer' => 'La duración debe ser un número entero.'
+        ]);
+        $servicio = $this->repo->create($request->all());
+        return redirect()->route('servicios.index')->with('success', 'Servicio creado');
+    }
+
+    public function show($id)
+    {
+        $servicio = $this->repo->find($id);
+        return view('modulos.servicios.show', compact('servicio'));
+    }
 
     public function edit($id)
     {
