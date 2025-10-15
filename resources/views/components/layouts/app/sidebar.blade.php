@@ -33,6 +33,8 @@
                     :current="request()->routeIs('calificaciones.*')" wire:navigate>Calificaciones</flux:navlist.item>
                 <flux:navlist.item icon="calendar" :href="route('agenda.index')"
                     :current="request()->routeIs('agenda.*')" wire:navigate>Agenda</flux:navlist.item>
+                <flux:navlist.item icon="chart-bar" :href="route('reportes.index')"
+                    :current="request()->routeIs('reportes.*')" wire:navigate>Reportes</flux:navlist.item>
                 <flux:navlist.item icon="cog-6-tooth" :href="route('configuracion.index')"
                     :current="request()->routeIs('configuracion.*')" wire:navigate>Configuración</flux:navlist.item>
             </flux:navlist.group>

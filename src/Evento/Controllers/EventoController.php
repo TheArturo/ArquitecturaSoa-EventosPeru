@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Log;
 
 class EventoController extends Controller
 {
@@ -47,7 +48,20 @@ class EventoController extends Controller
             'required' => 'Este campo es obligatorio.'
         ]);
         $evento = $this->repo->create($request->all());
-        return redirect()->route('eventos.index')->with('success', 'Evento creado');
+        
+        // Enviar notificación al cliente (si el cliente tiene email)
+        $cliente = $evento->cliente;
+        if ($cliente && $cliente->email) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($cliente->email)
+                    ->send(new \App\Mail\EventoCreado($evento));
+            } catch (\Exception $e) {
+                // Log silencioso si falla el envío
+                Log::warning('No se pudo enviar email de evento creado: ' . $e->getMessage());
+            }
+        }
+        
+        return redirect()->route('eventos.index')->with('success', 'Evento creado correctamente');
     }
 
     public function show($id)

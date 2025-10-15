@@ -10,6 +10,7 @@ use App\Src\Servicio\Controllers\ServicioController;
 use App\Src\Reserva\Controllers\ReservaController;
 use App\Src\Calificacion\Controllers\CalificacionController;
 use App\Src\Agenda\Controllers\AgendaController;
+use App\Http\Controllers\ReportesController;
 
 Route::view('/', 'welcome')->name('welcome');
 
@@ -23,6 +24,7 @@ Route::resource('reservas', ReservaController::class)->only(['index','create','s
 Route::resource('calificaciones', CalificacionController::class)->only(['index','store']);
 
 Route::get('agenda', [AgendaController::class, 'index'])->name('agenda.index');
+Route::get('reportes', [ReportesController::class, 'index'])->name('reportes.index');
 Route::view('configuracion', 'modulos.configuracion.index')->name('configuracion.index');
 
 use App\Http\Controllers\DashboardController;
