@@ -1,0 +1,13 @@
+.report-legend .item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.report-legend .left{display:flex;gap:8px;align-items:center}
+.report-swatch{width:14px;height:14px;border-radius:3px;display:inline-block;flex:0 0 14px}
+.report-legend .label{text-transform:capitalize}
+.report-legend .value{font-weight:700;color:#F53003}
+.report-chart-container{max-width:320px;max-height:320px}
+@media (max-width:768px){.report-chart-container{max-width:220px;max-height:220px}}
+
+/* Compatibilidad con la nueva clase compacta usada en la vista */
+.report-legend-item{padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.04)}
+.report-legend-item:last-child{border-bottom:0}
+.report-chart-container-full{width:100%;height:320px;min-height:260px}
+@media (min-width:768px){.report-chart-container-full{height:280px}}

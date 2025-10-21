@@ -1,0 +1,13 @@
+(function () {
+    const COLORS = ['#F53003', '#F97316', '#60A5FA', '#34D399', '#A78BFA', '#F59A9A', '#FBBF24', '#94A3B8'];
+    function destroy() { try { if (window._reportCharts) { window._reportCharts.donut?.destroy?.(); window._reportCharts.bar?.destroy?.() } } catch (e) { console.warn('destroy charts', e) } window._reportCharts = {} }
+    function renderLegend(labels, vals, container, colors) { if (!container) return; container.innerHTML = ''; labels.forEach((l, i) => { const el = document.createElement('div'); el.className = 'report-legend-item flex items-center justify-between'; const c = colors ? colors[i % colors.length] : COLORS[i % COLORS.length]; el.innerHTML = `<div class="flex items-center space-x-2"><span class="report-swatch inline-block rounded-sm" style="width:14px;height:14px;background:${c}"></span><span class="capitalize">${l}</span></div><div class="font-bold text-[#F53003] dark:text-[#F61500]">${vals[i]}</div>`; container.appendChild(el) }) }
+    function init() {
+        try {
+            destroy(); const data = window.__REPORTS_DATA || {}; const estados = data.eventosPorEstado || {}; const total = data.totalEventos || 0; const meses = data.eventosPorMes || [];
+            if (total > 0 && document.getElementById('donutEventos')) { const labels = Object.keys(estados), vals = Object.values(estados), colors = labels.map((_, i) => COLORS[i % COLORS.length]); const ctx = document.getElementById('donutEventos').getContext('2d'); window._reportCharts = window._reportCharts || {}; window._reportCharts.donut = new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderColor: colors.map(() => "#0f172a"), borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { display: false }, tooltip: { enabled: true } } } }); renderLegend(labels, vals, document.getElementById('legendDonut'), colors) }
+            if (Array.isArray(meses) && meses.length > 0 && document.getElementById('barEventosMes')) { const labels = meses.map(m => m.mes), vals = meses.map(m => m.total); const ctx = document.getElementById('barEventosMes').getContext('2d'); window._reportCharts = window._reportCharts || {}; window._reportCharts.bar = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Eventos', data: vals, backgroundColor: '#2563EB', borderRadius: 6, barThickness: 18 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } } }) }
+        } catch (e) { console.error('init reports', e) }
+    }
+    ['DOMContentLoaded', 'livewire:navigated', 'alpine:navigated', 'livewire:load'].forEach(ev => document.addEventListener(ev, init));
+})();

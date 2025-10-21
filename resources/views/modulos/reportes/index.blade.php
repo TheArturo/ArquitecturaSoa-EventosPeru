@@ -1,4 +1,5 @@
 <x-layouts.app :title="__('Reportes Estadísticos')">
+    <link rel="stylesheet" href="{{ asset('css/reportes.css') }}">
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-[#F53003] dark:text-[#F61500]">Reportes Estadísticos</h1>
         <p class="text-gray-600 dark:text-gray-300">Análisis y métricas del sistema Eventos Perú</p>
@@ -49,40 +50,41 @@
 
     <!-- Gráficos y reportes -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Eventos por estado -->
+        <!-- Eventos por estado (gráfico compacto) -->
         <div class="bg-white dark:bg-[#161615] rounded-xl border border-neutral-200 dark:border-neutral-700 shadow p-6">
             <h3 class="text-xl font-bold mb-4 text-[#F53003] dark:text-[#F61500]">Eventos por Estado</h3>
-            <div class="space-y-3">
-                @foreach($eventosPorEstado as $estado => $total)
-                    <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium capitalize">{{ $estado }}</span>
-                            <span class="text-sm font-bold">{{ $total }}</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div class="bg-[#F53003] dark:bg-[#F61500] h-2 rounded-full" style="width: {{ ($total / $totalEventos) * 100 }}%"></div>
+
+            @if ($totalEventos > 0)
+                <div class="flex flex-col md:flex-row md:items-center md:space-x-6">
+                    <div class="w-full md:w-1/2 flex items-center justify-center p-2">
+                        <div style="width:280px; height:280px;">
+                            <canvas id="donutEventos" aria-label="Eventos por estado" role="img"></canvas>
                         </div>
                     </div>
-                @endforeach
-            </div>
+
+                    <div id="legendDonut"
+                        class="w-full md:w-1/2 p-2 space-y-2 text-sm text-gray-700 dark:text-gray-300"></div>
+                </div>
+            @else
+                <div class="text-center py-8 text-gray-600 dark:text-gray-400">No hay eventos disponibles para mostrar
+                    el gráfico.</div>
+            @endif
         </div>
 
-        <!-- Eventos por mes -->
+        <!-- Eventos por mes (gráfico de barras horizontales) -->
         <div class="bg-white dark:bg-[#161615] rounded-xl border border-neutral-200 dark:border-neutral-700 shadow p-6">
             <h3 class="text-xl font-bold mb-4 text-[#F53003] dark:text-[#F61500]">Eventos por Mes (Últimos 6 meses)</h3>
-            <div class="space-y-3">
-                @foreach($eventosPorMes as $mes)
-                    <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium">{{ \Carbon\Carbon::parse($mes->mes . '-01')->format('M Y') }}</span>
-                            <span class="text-sm font-bold">{{ $mes->total }}</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div class="bg-blue-600 dark:bg-blue-400 h-2 rounded-full" style="width: {{ ($mes->total / $eventosPorMes->max('total')) * 100 }}%"></div>
-                        </div>
+
+            @if ($eventosPorMes->isNotEmpty())
+                <div class="p-2" style="min-height: 260px;">
+                    <div style="width:100%; height:320px;">
+                        <canvas id="barEventosMes" aria-label="Eventos por mes" role="img"></canvas>
                     </div>
-                @endforeach
-            </div>
+                </div>
+            @else
+                <div class="text-center py-8 text-gray-600 dark:text-gray-400">No hay datos de eventos por mes para
+                    mostrar.</div>
+            @endif
         </div>
     </div>
 
@@ -100,10 +102,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($topClientes as $cliente)
+                        @foreach ($topClientes as $cliente)
                             <tr class="border-b dark:border-gray-800">
                                 <td class="py-2 px-2">{{ $cliente->nombre }}</td>
-                                <td class="text-right py-2 px-2 font-bold text-[#F53003] dark:text-[#F61500]">{{ $cliente->eventos_count }}</td>
+                                <td class="text-right py-2 px-2 font-bold text-[#F53003] dark:text-[#F61500]">
+                                    {{ $cliente->eventos_count }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -123,10 +126,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($topProveedores as $proveedor)
+                        @foreach ($topProveedores as $proveedor)
                             <tr class="border-b dark:border-gray-800">
                                 <td class="py-2 px-2">{{ $proveedor->nombre_comercial }}</td>
-                                <td class="text-right py-2 px-2 font-bold text-green-600 dark:text-green-400">{{ $proveedor->reservas_count }}</td>
+                                <td class="text-right py-2 px-2 font-bold text-green-600 dark:text-green-400">
+                                    {{ $proveedor->reservas_count }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -139,14 +143,18 @@
     <div class="bg-white dark:bg-[#161615] rounded-xl border border-neutral-200 dark:border-neutral-700 shadow p-6">
         <h3 class="text-xl font-bold mb-4 text-[#F53003] dark:text-[#F61500]">Ingresos Estimados por Mes</h3>
         <div class="space-y-3">
-            @foreach($ingresosPorMes as $mes)
+            @foreach ($ingresosPorMes as $mes)
                 <div>
                     <div class="flex justify-between mb-1">
-                        <span class="text-sm font-medium">{{ \Carbon\Carbon::parse($mes->mes . '-01')->format('M Y') }}</span>
-                        <span class="text-sm font-bold text-green-600 dark:text-green-400">S/ {{ number_format($mes->total_ingresos, 2) }}</span>
+                        <span
+                            class="text-sm font-medium">{{ \Carbon\Carbon::parse($mes->mes . '-01')->format('M Y') }}</span>
+                        <span class="text-sm font-bold text-green-600 dark:text-green-400">S/
+                            {{ number_format($mes->total_ingresos, 2) }}</span>
                     </div>
                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-green-600 dark:bg-green-400 h-2 rounded-full" style="width: {{ ($mes->total_ingresos / $ingresosPorMes->max('total_ingresos')) * 100 }}%"></div>
+                        <div class="bg-green-600 dark:bg-green-400 h-2 rounded-full"
+                            style="width: {{ ($mes->total_ingresos / $ingresosPorMes->max('total_ingresos')) * 100 }}%">
+                        </div>
                     </div>
                 </div>
             @endforeach
@@ -154,8 +162,23 @@
         <div class="mt-4 pt-4 border-t dark:border-gray-700">
             <div class="flex justify-between items-center">
                 <span class="font-bold">Total Estimado:</span>
-                <span class="text-2xl font-bold text-green-600 dark:text-green-400">S/ {{ number_format($ingresosPorMes->sum('total_ingresos'), 2) }}</span>
+                <span class="text-2xl font-bold text-green-600 dark:text-green-400">S/
+                    {{ number_format($ingresosPorMes->sum('total_ingresos'), 2) }}</span>
             </div>
         </div>
     </div>
+    @push('scripts')
+        <script>
+            // Datos para el inicializador de reportes
+            window.__REPORTS_DATA = window.__REPORTS_DATA || {};
+            window.__REPORTS_DATA.eventosPorEstado = @json($eventosPorEstado);
+            window.__REPORTS_DATA.eventosPorMes = @json(
+                $eventosPorMes->map(function ($m) {
+                    return ['mes' => \Carbon\Carbon::parse($m->mes . '-01')->format('M Y'), 'total' => $m->total];
+                }));
+            window.__REPORTS_DATA.totalEventos = {{ $totalEventos ?? 0 }};
+        </script>
+        <script src="{{ asset('js/reportes.js') }}"></script>
+    @endpush
+
 </x-layouts.app>
